@@ -1,0 +1,122 @@
+CREATE OR REPLACE FUNCTION func.get_current_letters_by_santa(santa_id INT) 
+RETURNS TABLE(LIKE data.letter)
+SECURITY DEFINER
+AS $$ 
+BEGIN 
+    RETURN QUERY  
+    SELECT * 
+    FROM data.letter
+	WHERE letter.author_id IN ( 
+	SELECT child.birth_certificate  
+        FROM data.child  
+        WHERE child.postcode IN ( 
+            SELECT region_postcodes.postcode  
+            FROM data.region_postcodes  
+            WHERE region_postcodes.region_id = santa_id 
+        ) 
+    )
+    AND letters.year = EXTRACT(YEAR FROM CURRENT_DATE); 
+END; 
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION func.get_letters_by_santa(santa_id INT) 
+RETURNS TABLE(LIKE data.letter) SECURITY DEFINER AS $$ 
+BEGIN 
+    RETURN QUERY  
+    SELECT * 
+    FROM data.letter
+	WHERE letter.author_id IN ( 
+	SELECT child.birth_certificate  
+        FROM data.child  
+        WHERE child.postcode IN ( 
+            SELECT region_postcodes.postcode  
+            FROM data.region_postcodes  
+            WHERE region_postcodes.region_id = santa_id 
+        ) 
+    );
+END; 
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION func.get_good_letters_by_santa(santa_id INT) 
+RETURNS TABLE(LIKE data.letter) SECURITY DEFINER AS $$ 
+BEGIN 
+    RETURN QUERY  
+    SELECT * 
+    FROM data.letter
+	WHERE letter.author_id IN ( 
+	SELECT child.birth_certificate  
+        FROM data.child  
+        WHERE child.postcode IN ( 
+            SELECT region_postcodes.postcode  
+            FROM data.region_postcodes  
+            WHERE region_postcodes.region_id = santa_id 
+        ) 
+    );
+END; 
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION func.get_number_of_deeds(child_id CHAR(6))
+RETURNS TABLE (good_deeds INT, misdeeds INT) 
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT child.number_of_good_deeds, child.number_of_misdeeds FROM data.child
+        WHERE child.birth_certificate = child_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION func.get_letters_by_child(child_id CHAR(6))
+RETURNS TABLE (LIKE data.letter) 
+SECURITY DEFINER 
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM data.letter
+	WHERE letter.author_id = child_id
+	ORDER BY letter.year ASC; 
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION func.child_login(log CHAR(6), password VARCHAR(20))
+RETURNS BOOL AS $$
+DECLARE
+    stored_password VARCHAR(20);
+BEGIN
+    SELECT child.password INTO stored_password
+    FROM data.child
+    WHERE child.birth_certificate = log;
+
+    IF stored_password IS NOT NULL AND stored_password = password THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE; 
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION func.santa_login(log VARCHAR(40), password VARCHAR(40))
+RETURNS BOOL AS $$
+DECLARE
+    stored_password VARCHAR(20);
+BEGIN
+    SELECT santa.password INTO stored_password
+    FROM data.santa
+    WHERE santa.nickname = log;
+
+    IF stored_password IS NOT NULL AND stored_password = password THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE; 
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
