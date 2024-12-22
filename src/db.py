@@ -33,7 +33,7 @@ class DBController:
         #self.drop_schema()
         self.init_db()
         #self.test()
-        print(self.isChildLoggedIn('121212', 'huy')[0])
+        print(self.isChildLoggedIn('121212', 'huy'))
 
     def init_db(self):
         self.createSchema()
