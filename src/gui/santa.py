@@ -32,14 +32,15 @@ class Santa:
 
         # Кнопка для выхода из профиля
         logout_button = tk.Button(santa_main_menu_frame, text="Выйти из аккаунта", command=self.sign_out)
-        logout_button.pack(pady=10, side='left')
+        logout_button.pack(pady=10, padx = 5, side='left')
 
+        region_inf = tk.Label(santa_main_menu_frame, text=self.app.db_ctrl.getRegionBySantaNickname(self.nickname))
+        region_inf.pack(pady=10, padx = 5, side='right')
     def sign_out(self):
         self.app.authorization.first_page()
 
     def show_emails(self):
         self.emails = self.app.db_ctrl.getCurrentLettersBySantaNickname(self.nickname)
-
         for email in self.emails:
             self.tree.insert("", "end", values=(email["author_id"], email["topic"], email["description"]))
 

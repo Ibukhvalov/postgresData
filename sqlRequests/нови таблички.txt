@@ -21,7 +21,7 @@ AS $$
 BEGIN
     RETURN QUERY
     SELECT * FROM data.letter
-	WHERE letter.author_id = child_id AND letter.topic = picked_topic
+	WHERE letter.author_id = child_id AND letter.topic ~* picked_topic
 	ORDER BY letter.year ASC; 
 END;
 $$ LANGUAGE plpgsql;
@@ -43,13 +43,12 @@ $$ LANGUAGE plpgsql;
 birth_certificate(author_id), topic или year
 
 
-CREATE OR REPLACE FUNCTION func.delete_letters_by_child_and_topic(child_id CHAR(6), picked_topic VARCHAR(50))
-RETURNS TABLE (LIKE data.letter) 
+CREATE OR REPLACE PROCEDURE func.delete_letters_by_child_and_topic(child_id CHAR(6), picked_topic VARCHAR(50))
 SECURITY DEFINER 
 AS $$
 BEGIN
     DELETE FROM data.letter
-	WHERE letter.author_id = child_id AND letter.topic = picked_topic;
+	WHERE letter.author_id = child_id AND letter.topic ILIKE picked_topic;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -63,6 +62,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CALL func.add_letter(123456, 'car', 'big car')
+
+INSERT INTO data.letter VALUES ('123456', 2023, 'car', 'orange car');
+
+
+
+
+-- Индекс для быстрого поиска
+CREATE INDEX your_column_trgm_idx ON your_table USING gin (your_column gin_trgm_ops);
 
 функция для получения полной информации о ребенке ну вообще кроме пароля(child_info)
 birth_certificate

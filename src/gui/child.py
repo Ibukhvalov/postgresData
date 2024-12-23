@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 
 class Child:
     def __init__(self, root, app, birth_certificate):
+        self.emails_by_search = []
         self.root = root
         self.app = app
         self.emails = []
@@ -86,14 +87,21 @@ class Child:
         delete_button.pack(pady = 10, side = "right")
 
     def delete_emails_by_search(self):
-        print("функция для удаления писем по запросу")
+        if self.search_type.get() == "topic":
+            self.emails_by_search = self.app.db_ctrl.deleteLettersByChildAndTopic(self.birth_certificate, self.search_entry.get())
+        else:
+            self.emails_by_search = self.app.db_ctrl.deleteLettersByChildAndYear(self.birth_certificate,
+                                                                               self.search_entry.get())
+
+        self.show_emails_by_search()
+
 
     def perform_search(self):
-        if (self.search_type.get() == "topic"):
-            self.emails_by_search = self.app.db_ctrl.getLettersByChildAndTopic(self.birth_certificate, self.search_type.get())
+        if self.search_type.get() == "topic":
+            self.emails_by_search = self.app.db_ctrl.getLettersByChildAndTopic(self.birth_certificate, self.search_entry.get())
         else:
             self.emails_by_search = self.app.db_ctrl.getLettersByChildAndYear(self.birth_certificate,
-                                                                               self.search_type.get())
+                                                                               self.search_entry.get())
 
         self.show_emails_by_search()
 
@@ -103,8 +111,9 @@ class Child:
             self.results_tree.delete(row)
 
         # Добавление писем в таблицу
-        for email in self.emails_by_search:
-            self.results_tree.insert("", "end", values=(email["year"], email["topic"], email["description"]))
+        if len(self.emails_by_search) > 0:
+            for email in self.emails_by_search:
+                self.results_tree.insert("", "end", values=(email["year"], email["topic"], email["description"]))
 
     def open_settings(self):
         self.app.clear_frame()
@@ -122,7 +131,7 @@ class Child:
         tk.Label(settings_frame, text=child_info["full_name"]).grid(row=0, column=1, padx=10, pady=5)
 
         tk.Label(settings_frame, text="Дата рождения:").grid(row=1, column=0, padx=10, pady=5)
-        tk.Label(settings_frame, text=child_info["date_of_birth"]).grid(row=1, column=1, padx=10, pady=5)
+        tk.Label(settings_frame, text=child_info["birth_date"]).grid(row=1, column=1, padx=10, pady=5)
 
         tk.Label(settings_frame, text="Свидетельство о рождении:").grid(row=2, column=0, padx=10, pady=5)
         tk.Label(settings_frame, text=self.birth_certificate).grid(row=2, column=1, padx=10, pady=5)
@@ -142,13 +151,7 @@ class Child:
         back_button.place(relx=0.01, rely=0.01, anchor='nw')
 
     def get_child_info(self, birth_certificate, child_info):
-        child_info.update(self.app.db_ctrl.getChildbyId(birth_certificate))
-
-        child_info.update({
-            "full_name": "ivan bukhvalov",
-            "date_of_birth": "29-01-2006",
-            "postcode": "123456"
-        })
+        child_info.update(self.app.db_ctrl.getChildById(birth_certificate))
 
     def delete_profile(self):
         self.app.db_ctrl.deleteChild(self.birth_certificate)
@@ -235,7 +238,7 @@ class Child:
              self.tree.delete(row)
         # Добавление писем в таблицу
         for email in self.emails:
-            self.tree.insert("", "end", values=(email["tear"], email["topic"], email["description"]))
+            self.tree.insert("", "end", values=(email["year"], email["topic"], email["description"]))
 
     def write_email(self):
         self.app.clear_frame()
@@ -252,7 +255,7 @@ class Child:
         email_description = tk.Text(add_email_frame, wrap=tk.WORD, width=50, height=15)
         email_description.grid(row=3, column=0)
 
-        send_button = tk.Button(self.root, text="Отправить", command=lambda: self.send_email(email_topic, email_description))
+        send_button = tk.Button(self.root, text="Отправить", command=lambda: self.send_email(email_topic.get(), email_description.get("1.0", tk.END)))
         send_button.place(x=535, y=333)
 
         back_button = tk.Button(self.root, image=self.back_photo, borderwidth=0, highlightthickness=0, bg=add_email_frame.cget("bg"), command=self.open_child_main_menu)

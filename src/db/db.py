@@ -31,6 +31,7 @@ class DBController:
         #self.drop_schema()
         self.init_db()
 
+
     def init_db(self):
         self.createSchema()
         self.createTables()
@@ -116,6 +117,7 @@ class DBController:
     def getLettersByChildAndYear(self, child_id, year):
         with self.app_conn.get_cursor() as cursor:
             try:
+                print("func.get_letters_by_child_and_topic ", (child_id,year))
                 cursor.callproc("func.get_letters_by_child_and_year", (child_id, year))
                 return [letter_from_raw(data) for data in cursor.fetchall()]
             except Exception as e:
@@ -162,6 +164,22 @@ class DBController:
             try:
                 cursor.callproc("func.get_letters_by_santa_nickname", (nickname,))
                 return [letter_from_raw(data) for data in cursor.fetchall()]
+            except Exception as e:
+                print(e.diag.message_primary)
+
+    def getCurrentLettersBySantaNickname(self, nickname):
+        with self.app_conn.get_cursor() as cursor:
+            try:
+                cursor.callproc("func.get_current_letters_by_santa_nickname", (nickname,))
+                return [letter_from_raw(data) for data in cursor.fetchall()]
+            except Exception as e:
+                print(e.diag.message_primary)
+
+    def getRegionBySantaNickname(self, nickname):
+        with self.app_conn.get_cursor() as cursor:
+            try:
+                cursor.callproc("func.get_region_by_santa", (nickname,))
+                return cursor.fetchone()[0]
             except Exception as e:
                 print(e.diag.message_primary)
 

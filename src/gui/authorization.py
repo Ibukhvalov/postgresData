@@ -178,7 +178,7 @@ class Authorization:
     def login_for_santas(self):
         login = self.login_entry.get()
         password = self.password_entry.get()
-
+        print(login , password)
         if self.app.db_ctrl.isSantaLoggedIn(login, password):
             messagebox.showinfo("Успех", "Вы вошли в систему!")
             self.app.open_santa_main_menu(login)

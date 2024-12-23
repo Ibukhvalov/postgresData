@@ -1,0 +1,11 @@
+ 15 | DedMoroz          | MtpGv66   (Eastern Europe)
+
+ postcode | region_id
+----------+-----------
+ 282300   |        15
+ 504085   |        15
+ 282959   |        15
+
+call func.register_child('123456', '123', 'Sesekina Elena', '2005.07.26', '282300');
+
+CALL func.add_letter('123456', 'cat', 'wanna big fat cat');

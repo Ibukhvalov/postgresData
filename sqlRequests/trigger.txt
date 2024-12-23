@@ -24,3 +24,17 @@ EXECUTE PROCEDURE func.load_from_deeds_ministry();
 END;
 $$;
 
+
+
+
+
+CREATE OR REPLACE PROCEDURE init.create_indexes()
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX topic_idx ON data.letter USING gin (topic gin_trgm_ops);
+END;
+$$;

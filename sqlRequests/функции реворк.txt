@@ -15,7 +15,7 @@ BEGIN
             WHERE region_postcodes.region_id = santa_id 
         ) 
     )
-    AND letters.year = EXTRACT(YEAR FROM CURRENT_DATE); 
+    AND letter.year = EXTRACT(YEAR FROM CURRENT_DATE); 
 END; 
 $$ LANGUAGE plpgsql;
 
@@ -103,9 +103,28 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+ CREATE OR REPLACE FUNCTION func.get_current_letters_by_santa_nickname(nick character varying)   
+  RETURNS TABLE("like" data.letter)                                                      
+  LANGUAGE plpgsql                                                                       
+  SECURITY DEFINER                                                                       
+ AS $$                                                                           
+  DECLARE                                                                                
+      santa_id INT;                                                                      
+  BEGIN                                                                                  
+      SELECT santa.region_id INTO santa_id                                               
+      FROM data.santa                                                                    
+      WHERE santa.nickname = nick;                                                       
+                                                                                         
+      RETURN QUERY SELECT * FROM func.get_current_letters_by_santa(santa_id);                    
+  END;                                                                                   
+$$
+
+
 
 CREATE OR REPLACE FUNCTION func.santa_login(log VARCHAR(40), password VARCHAR(40))
-RETURNS BOOL AS $$
+RETURNS BOOL 
+SECURITY DEFINER
+AS $$
 DECLARE
     stored_password VARCHAR(20);
 BEGIN
