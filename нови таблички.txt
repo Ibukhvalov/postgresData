@@ -1,0 +1,171 @@
+процедура для регистрации ребенка(child_register)
+birth_certificate, full_name, date_of_birth, postcode, password
+
+CREATE OR REPLACE PROCEDURE func.register_child(birth_certificate CHAR(6), password VARCHAR(20), name VARCHAR(50),
+birth_date date, postcode CHAR(6)) 
+SECURITY DEFINER
+AS $$ 
+BEGIN 
+    INSERT INTO data.child(birth_certificate, password, full_name, birth_date, postcode) VALUES
+	(birth_certificate, password, name, birth_date, postcode);
+END; 
+$$ LANGUAGE plpgsql;
+
+
+функция для поиска писем ребенка по году или топику(perform_search)
+birth_certificate(author_id), topic или year
+CREATE OR REPLACE FUNCTION func.get_letters_by_child_and_topic(child_id CHAR(6), picked_topic VARCHAR(50))
+RETURNS TABLE (LIKE data.letter) 
+SECURITY DEFINER 
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM data.letter
+	WHERE letter.author_id = child_id AND letter.topic = picked_topic
+	ORDER BY letter.year ASC; 
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION func.get_letters_by_child_and_year(child_id CHAR(6), picked_year INTEGER)
+RETURNS TABLE (LIKE data.letter) 
+SECURITY DEFINER 
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM data.letter
+	WHERE letter.author_id = child_id AND letter.year = picked_year
+	ORDER BY letter.year ASC; 
+END;
+$$ LANGUAGE plpgsql;
+
+
+функция для удаления всех писем по запросу (предыдущая функция) (delete_emails_by_search)
+birth_certificate(author_id), topic или year
+
+
+CREATE OR REPLACE PROCEDURE func.delete_letters_by_child_and_topic(child_id CHAR(6), picked_topic VARCHAR(50))
+SECURITY DEFINER 
+AS $$
+BEGIN
+    DELETE FROM data.letter
+	WHERE letter.author_id = child_id AND letter.topic = picked_topic;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE func.delete_letters_by_child_and_year(child_id CHAR(6), picked_year INTEGER) 
+SECURITY DEFINER 
+AS $$
+BEGIN
+    DELETE FROM data.letter
+	WHERE letter.author_id = child_id AND letter.year = picked_year;
+END;
+$$ LANGUAGE plpgsql;
+
+
+функция для получения полной информации о ребенке ну вообще кроме пароля(child_info)
+birth_certificate
+
+
+CREATE OR REPLACE FUNCTION func.get_child_by_id_without_password(child_id CHAR(6))
+RETURNS TABLE (birth_certificate CHAR(6),
+      full_name VARCHAR(50),
+      birth_date date,
+      postcode CHAR(6),
+      number_of_good_deeds INTEGER,
+      number_of_misdeeds INTEGER)
+SECURITY DEFINER 
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT child.birth_certificate, child.full_name, child.birth_date, child.postcode, child.number_of_good_deeds, child.number_of_misdeeds FROM data.child
+	WHERE child.birth_certificate = child_id
+	ORDER BY child.full_name ASC;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+функция для удаления всего профиля ребенка 
+birth_certificate
+
+
+CREATE OR REPLACE PROCEDURE func.delete_child(child_id CHAR(6)) 
+SECURITY DEFINER
+AS $$ 
+BEGIN 
+    DELETE FROM data.child WHERE birth_certificate = child_id;
+END; 
+$$ LANGUAGE plpgsql;
+
+
+
+
+функция для изменения письма
+birth_certificate, year(его нельзя менять), новый топик и новый дескриптион
+
+
+CREATE OR REPLACE PROCEDURE func.update_letter(child_id CHAR(6), picked_year INTEGER, new_topic VARCHAR(50), new_desc TEXT) 
+SECURITY DEFINER
+AS $$ 
+BEGIN 
+    UPDATE data.letter SET topic = new_topic, description = new_desc WHERE author_id = child_id AND year = picked_year;
+END; 
+$$ LANGUAGE plpgsql;
+
+
+
+функция для удаления письма
+birth_certificate, year
+
+CREATE OR REPLACE PROCEDURE func.delete_letter(child_id CHAR(6), picked_year INTEGER) 
+SECURITY DEFINER
+AS $$ 
+BEGIN 
+    DELETE FROM data.letter WHERE author_id = child_id AND year = picked_year;
+END; 
+$$ LANGUAGE plpgsql;
+
+
+
+функция для отправки нового письма 
+birth_certificate, топик, дескриптион
+
+call func.add_letter('121212', 'cat', 'red fat cat');
+
+
+CREATE OR REPLACE PROCEDURE func.add_letter(child_id CHAR(6), added_topic VARCHAR(50), added_desc TEXT) 
+SECURITY DEFINER
+AS $$ 
+BEGIN 
+    INSERT INTO data.letter(author_id, topic, description) VALUES
+	(child_id, added_topic, added_desc);
+END; 
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+функция для просмотра текущих писем для конкретного санты 
+nickname
+
+
+CREATE OR REPLACE FUNCTION get_letters_by_santa_nickname(nick VARCHAR(40))
+RETURNS TABLE (LIKE data.letter)
+SECURITY DEFINER
+AS $$ 
+DECLARE
+    santa_id INT;
+BEGIN 
+    SELECT santa.region_id INTO santa_id
+    FROM data.santa
+    WHERE santa.nickname = nick;
+
+    RETURN QUERY SELECT * FROM func.get_letters_by_santa(santa_id);
+END; 
+$$ LANGUAGE plpgsql;
+
+
+
+
+
