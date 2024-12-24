@@ -4,7 +4,7 @@ Santa: Santas can log in and view letters from children in their assigned region
 
 #### Functionality
 
-Child:
+## Child:
 Registration: Creates a new user account.
 Login: Accesses their account.
 Write Letter: Creates a new letter with topic, and text.
@@ -15,7 +15,7 @@ Delete Letters by Search: Deletes all letters matching a search query.
 Logout: Exits the current user session.
 Delete Account: Deletes the child’s user account and all associated data.
 
-Santa:
+## Santa:
 Login: Accesses their account.
 View Letters by Region: Displays a list of letters from children in the assigned region.
 View Child Details: Shows the full profile of the child who wrote a particular letter.
