@@ -1,8 +1,8 @@
-####User Roles
+#### User Roles
 Child: Children can create accounts, write letters to Santa, manage their letters (edit, delete), and search/filter letters by topic or year. They can also delete their own account.
 Santa: Santas can log in and view letters from children in their assigned region. They can also view the child’s details.
 
-####Functionality
+#### Functionality
 
 Child:
 Registration: Creates a new user account.
