@@ -1,5 +1,5 @@
-from src.db.config import db_ctrl_params, db_app_params
-from src.db.connectionController import Connection
+from config import db_ctrl_params, db_app_params
+from connectionController import Connection
 
 
 
@@ -39,11 +39,15 @@ class DBController:
     def init_db(self):
         self.createSchema()
         self.createTables()
+        self.createIndexes()
         self.initExampleData()
 
     def createSchema(self):
         with self.ctrl_conn.get_cursor() as cursor:
             cursor.execute("call init.create_schema()")
+    def createIndexes(self):
+        with self.ctrl_conn.get_cursor() as cursor:
+            cursor.execute("call init.create_indexes()")
 
     def createTables(self):
         with self.ctrl_conn.get_cursor() as cursor:
@@ -207,3 +211,4 @@ class DBController:
             except Exception as e:
                 print(e.diag.message_primary)
 
+db = DBController(True)
