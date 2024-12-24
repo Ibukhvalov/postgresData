@@ -2,6 +2,7 @@ from src.db.config import db_ctrl_params, db_app_params
 from src.db.connectionController import Connection
 
 
+
 def child_from_raw(rawData):
     if len(rawData) != 6:
       print(f"ALARM AT {rawData}")
@@ -25,17 +26,20 @@ def letter_from_raw(rawData):
     }
 
 class DBController:
-    def __init__(self):
+    def __init__(self, restart = False):
         self.ctrl_conn = Connection(db_ctrl_params, True)
         self.app_conn = Connection(db_app_params, True)
-        #self.drop_schema()
-        self.init_db()
+
+        if restart:
+            self.dropSchema()
+            self.init_db()
+
 
 
     def init_db(self):
         self.createSchema()
         self.createTables()
-        self.initRussianData()
+        self.initExampleData()
 
     def createSchema(self):
         with self.ctrl_conn.get_cursor() as cursor:
@@ -46,12 +50,15 @@ class DBController:
             cursor.execute("call init.create_tables()")
             cursor.execute("call init.create_trigger()")
 
-    def initRussianData(self):
+
+
+    def initExampleData(self):
         with self.ctrl_conn.get_cursor() as cursor:
             try:
                 cursor.execute("call init.insert_russian_regions()")
                 cursor.execute("call init.insert_russian_postcodes()")
                 cursor.execute("call init.insert_santas()")
+                cursor.execute("call init.add_child_letters()")
             except Exception as e:
                 print("Error at initialization tables:", e.diag.message_primary)
 
@@ -199,3 +206,4 @@ class DBController:
                 cursor.execute("CALL func.update_letter(%s, %s, %s, %s)", (author_id, year, new_topic, new_desc))
             except Exception as e:
                 print(e.diag.message_primary)
+
