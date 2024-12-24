@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (postgresData)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (postgresData)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (postgres)" project-jdk-type="Python SDK" />
 </project>

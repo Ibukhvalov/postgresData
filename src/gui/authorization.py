@@ -13,27 +13,27 @@ class Authorization:
 
     def load_images(self):
         """Загрузка и изменение размера изображений."""
-        self.back_image = Image.open("../images/back.png")  # Замените на путь к вашему изображению
+        self.back_image = Image.open("src/images/back.png")  # Замените на путь к вашему изображению
         self.back_image = self.back_image.resize((50, 30), Image.LANCZOS)
         self.back_photo = ImageTk.PhotoImage(self.back_image)
 
-        self.santa_image = Image.open("../images/santa.png")  # Замените на путь к вашему изображению
+        self.santa_image = Image.open("src/images/santa.png")  # Замените на путь к вашему изображению
         self.santa_image = self.santa_image.resize((500, 500), Image.LANCZOS)
         self.santa_photo = ImageTk.PhotoImage(self.santa_image)
 
-        self.child_image = Image.open("../images/child.png")  # Замените на путь к вашему изображению
+        self.child_image = Image.open("src/images/child.png")  # Замените на путь к вашему изображению
         self.child_image = self.child_image.resize((600, 300), Image.LANCZOS)
         self.child_photo = ImageTk.PhotoImage(self.child_image)
 
-        self.newYear_image = Image.open("../images/newYear.png")  # Замените на путь к вашему изображению
+        self.newYear_image = Image.open("src/images/newYear.png")  # Замените на путь к вашему изображению
         self.newYear_image = self.newYear_image.resize((500, 400), Image.LANCZOS)
         self.newYear_photo = ImageTk.PhotoImage(self.newYear_image)
 
-        self.bag_image = Image.open("../images/bag.png")  # Замените на путь к вашему изображению
+        self.bag_image = Image.open("src/images/bag.png")  # Замените на путь к вашему изображению
         self.bag_image = self.bag_image.resize((110, 110), Image.LANCZOS)
         self.bag_photo = ImageTk.PhotoImage(self.bag_image)
 
-        self.deer_image = Image.open("../images/deer.png")  # Замените на путь к вашему изображению
+        self.deer_image = Image.open("src/images/deer.png")  # Замените на путь к вашему изображению
         self.deer_image = self.deer_image.resize((200, 300), Image.LANCZOS)
         self.deer_photo = ImageTk.PhotoImage(self.deer_image)
 
@@ -130,12 +130,11 @@ class Authorization:
         password = self.reg_password_entry.get()
         password_confirm = self.reg_password_confirm_entry.get()
 
-        if password != password_confirm:
-            messagebox.showerror("Ошибка", "Пароли не совпадают!")
+        if password != password_confirm or not (self.app.db_ctrl.registerChild(birth_certificate, password, full_name, birth_date, postcode)):
+            messagebox.showerror("Ошибка", "Вы ввели неверные данные!")
         else:
             # Здесь можно добавить логику для сохранения данных
             messagebox.showinfo("Успех", "Регистрация успешна!")
-            self.app.db_ctrl.registerChild(birth_certificate, password, full_name, birth_date, postcode)
             self.open_login()
 
 

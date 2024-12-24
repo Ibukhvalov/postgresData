@@ -1,5 +1,5 @@
-from db.config import db_ctrl_params, db_app_params
-from db.connectionController import Connection
+from src.db.config import db_ctrl_params, db_app_params
+from src.db.connectionController import Connection
 
 
 def child_from_raw(rawData):
@@ -96,8 +96,10 @@ class DBController:
         with self.app_conn.get_cursor() as cursor:
             try:
                 cursor.execute("CALL func.add_letter(%s, %s, %s)", (child_id, topic, desc))
+                return True
             except Exception as e:
                 print(e.diag.message_primary)
+                return False
 
     def getChildById(self, child_id):
         with self.app_conn.get_cursor() as cursor:
@@ -117,7 +119,6 @@ class DBController:
     def getLettersByChildAndYear(self, child_id, year):
         with self.app_conn.get_cursor() as cursor:
             try:
-                print("func.get_letters_by_child_and_topic ", (child_id,year))
                 cursor.callproc("func.get_letters_by_child_and_year", (child_id, year))
                 return [letter_from_raw(data) for data in cursor.fetchall()]
             except Exception as e:
@@ -187,8 +188,10 @@ class DBController:
         with self.app_conn.get_cursor() as cursor:
             try:
                 cursor.execute("CALL func.register_child(%s, %s, %s, %s, %s)", (birth_certificate, password, full_name, birth_date, postcode))
+                return True
             except Exception as e:
                 print(e.diag.message_primary)
+                return False
 
     def updateLetter(self, author_id, year, new_topic, new_desc):
         with self.app_conn.get_cursor() as cursor:

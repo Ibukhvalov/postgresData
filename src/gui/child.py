@@ -15,7 +15,7 @@ class Child:
 
     def load_images(self):
         """Загрузка и изменение размера изображений."""
-        self.back_image = Image.open("../images/back.png")  # Замените на путь к вашему изображению
+        self.back_image = Image.open("src/images/back.png")  # Замените на путь к вашему изображению
         self.back_image = self.back_image.resize((50, 30), Image.LANCZOS)
         self.back_photo = ImageTk.PhotoImage(self.back_image)
 
@@ -37,14 +37,14 @@ class Child:
         self.tree.bind("<Double-1>", self.on_item_double_click)
 
         settings_button = tk.Button(child_main_menu_frame, text="Настройки", command=self.open_settings)
-        settings_button.pack(pady=10, side='left')
+        settings_button.pack(pady=10,padx=5,     side='left')
 
         find_email_button = tk.Button(child_main_menu_frame, text="Найти письмо", command=self.open_finder)
         find_email_button.place(x = 355, y = 565)
 
         # Кнопка для добавления нового письма
         add_email_button = tk.Button(child_main_menu_frame, text="Отправить новое письмо", command=self.write_email)
-        add_email_button.pack(side = 'right')
+        add_email_button.pack(padx=5, side = 'right')
 
         # Отображение писем в таблице
         self.show_emails()
@@ -88,12 +88,12 @@ class Child:
 
     def delete_emails_by_search(self):
         if self.search_type.get() == "topic":
-            self.emails_by_search = self.app.db_ctrl.deleteLettersByChildAndTopic(self.birth_certificate, self.search_entry.get())
+            self.app.db_ctrl.deleteLettersByChildAndTopic(self.birth_certificate, self.search_entry.get())
         else:
-            self.emails_by_search = self.app.db_ctrl.deleteLettersByChildAndYear(self.birth_certificate,
+            self.app.db_ctrl.deleteLetterByChildAndYear(self.birth_certificate,
                                                                                self.search_entry.get())
 
-        self.show_emails_by_search()
+        self.perform_search()
 
 
     def perform_search(self):
@@ -111,9 +111,8 @@ class Child:
             self.results_tree.delete(row)
 
         # Добавление писем в таблицу
-        if len(self.emails_by_search) > 0:
-            for email in self.emails_by_search:
-                self.results_tree.insert("", "end", values=(email["year"], email["topic"], email["description"]))
+        for email in self.emails_by_search:
+            self.results_tree.insert("", "end", values=(email["year"], email["topic"], email["description"]))
 
     def open_settings(self):
         self.app.clear_frame()
@@ -219,6 +218,7 @@ class Child:
     def delete_email(self, year, email_window):
         self.app.db_ctrl.deleteLetterByChildAndYear(self.birth_certificate, year)
         messagebox.showinfo("Удаление", f"Письмо с годом '{year}' удалено")
+        self.show_emails()
         email_window.destroy()
 
     def save_email(self, year, topic, description, email_window):
@@ -262,7 +262,9 @@ class Child:
         back_button.place(relx=0.01, rely=0.01, anchor='nw')
 
     def send_email(self, topic, description):
-        messagebox.showinfo("Успех", "Письмо отправлено санте!")
-        self.app.db_ctrl.addLetter(self.birth_certificate, topic, description)
+        if self.app.db_ctrl.addLetter(self.birth_certificate, topic, description):
+            messagebox.showinfo("Успех", "Письмо отправлено санте!")
+        else:
+            messagebox.showerror("Ошибка", "Вы не можете получить два подарка в этом году или вы не ввели топик!")
 
         self.open_child_main_menu()

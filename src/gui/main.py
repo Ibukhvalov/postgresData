@@ -2,7 +2,7 @@ import tkinter as tk
 from authorization import Authorization
 from child import Child
 from santa import Santa
-from db.db import DBController
+from src.db.db import DBController
 
 class App:
     def __init__(self, root):

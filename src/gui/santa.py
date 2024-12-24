@@ -14,6 +14,7 @@ class Santa:
         self.app.clear_frame()
         self.root.title("Аккаунт")
 
+
         santa_main_menu_frame = tk.Frame(self.root)
         santa_main_menu_frame.pack(fill=tk.BOTH, expand=True)
 
